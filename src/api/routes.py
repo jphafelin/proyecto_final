@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, Evento, Participantes_de_Eventos, Tipo_de_Evento
 from api.utils import generate_sitemap, APIException
 
 api = Blueprint('api', __name__)
@@ -17,7 +17,7 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
-@api.route('/user', methods=['GET', 'POST'])
+@api.route('/user', methods=['GET'])
 def user():
     if request.method == "GET":
         users = User.query.all()
@@ -26,15 +26,54 @@ def user():
                         "results": results,
                         "Total_records": len(results)}
         return response_body, 200
-    elif request.method == "POST":
-        request_body = request.get_json()
-        user = User(email = request_body['email'],
-                    password = request_body['password'])
-        db.session.add(user)
-        db.session.commit()
-        response_body = {"details": request_body,
-                         "message": "User created"}
+ 
+    else:
+        response_body = {"message": "Error. Method not allowed."}
+        return response_body, 400
+
+
+
+
+@api.route('/evento', methods=['GET'])
+def evento():
+    if request.method == "GET":
+        eventos = Evento.query.all()
+        results = [evento.serialize() for evento in eventos]
+        response_body = {"message": "ok",
+                        "results": results,
+                        "Total_records": len(results)}
         return response_body, 200
+
+    else:
+        response_body = {"message": "Error. Method not allowed."}
+        return response_body, 400
+
+
+@api.route('/participantes', methods=['GET'])
+def participantes():
+    if request.method == "GET":
+        participantes_evento = Participantes_de_Eventos.query.all()
+        results = [participante.serialize() for participante in participantes_evento]
+        response_body = {"message": "ok",
+                        "results": results,
+                        "Total_records": len(results)}
+        return response_body, 200
+
+    else:
+        response_body = {"message": "Error. Method not allowed."}
+        return response_body, 400
+
+
+@api.route('/tipo-de-evento', methods=['GET'])
+def tiposdeeventos():
+    if request.method == "GET":
+        tipo_de_evento = Tipo_de_Evento.query.all()
+        results = [tipo.serialize() for tipo in tipo_de_evento]
+        response_body = {"message": "ok",
+                        "results": results,
+                        "Total_records": len(results)}
+        return response_body, 200
+
     else:
         response_body = {"message": "Error. Method not allowed."}
         return response_body, 400
